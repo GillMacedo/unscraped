@@ -1,0 +1,13 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: shop
+  namespace: shop
+spec:
+  selector:
+    matchExpressions:
+      - key: app
+        operator: Equals
+        values: [shop]
+  endpoints:
+    - port: http-metrics

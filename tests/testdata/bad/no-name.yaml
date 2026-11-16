@@ -1,0 +1,11 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    release: kps
+spec:
+  selector:
+    matchLabels:
+      app: shop
+  endpoints:
+    - port: http-metrics

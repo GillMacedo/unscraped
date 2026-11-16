@@ -1,0 +1,5 @@
+serviceMonitor:
+  enabled: true
+  labels:
+    release: kps
+  interval: 30s

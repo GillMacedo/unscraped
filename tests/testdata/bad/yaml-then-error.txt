@@ -1,0 +1,247 @@
+# examples/broken/shop.yaml with each mistake fixed. unscraped stays quiet.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shop
+  labels:
+    monitoring: enabled
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: payments
+  labels:
+    monitoring: enabled
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: main
+  namespace: monitoring
+spec:
+  serviceMonitorSelector:
+    matchLabels:
+      release: monitoring
+  serviceMonitorNamespaceSelector:
+    matchLabels:
+      monitoring: enabled
+  podMonitorSelector:
+    matchLabels:
+      release: monitoring
+  podMonitorNamespaceSelector:
+    matchLabels:
+      monitoring: enabled
+  ruleSelector:
+    matchLabels:
+      release: monitoring
+  ruleNamespaceSelector:
+    matchLabels:
+      monitoring: enabled
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout
+  namespace: shop
+spec:
+  selector:
+    matchLabels:
+      app: checkout
+  template:
+    metadata:
+      labels:
+        app: checkout
+    spec:
+      containers:
+        - name: checkout
+          image: example.com/checkout:1.4.0
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: metrics
+              containerPort: 9090
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: checkout
+  namespace: shop
+  labels:
+    app.kubernetes.io/name: checkout
+spec:
+  selector:
+    app: checkout
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+    - name: http-metrics
+      port: 9090
+      targetPort: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: checkout
+  namespace: shop
+  labels:
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: checkout
+  endpoints:
+    - port: http-metrics
+      interval: 30s
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cart
+  namespace: shop
+spec:
+  selector:
+    matchLabels:
+      app: cart
+  template:
+    metadata:
+      labels:
+        app: cart
+    spec:
+      containers:
+        - name: cart
+          image: example.com/cart:2.0.1
+          ports:
+            - name: http
+              containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cart
+  namespace: shop
+  labels:
+    app.kubernetes.io/name: cart
+spec:
+  selector:
+    app: cart
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cart
+  namespace: shop
+  labels:
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cart
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+      scrapeTimeout: 10s
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments
+  namespace: payments
+spec:
+  selector:
+    matchLabels:
+      app: payments
+  template:
+    metadata:
+      labels:
+        app: payments
+    spec:
+      containers:
+        - name: payments
+          image: example.com/payments:3.2.0
+          ports:
+            - name: grpc
+              containerPort: 9000
+            - name: metrics
+              containerPort: 9100
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: payments
+  namespace: payments
+  labels:
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: payments
+  podMetricsEndpoints:
+    - port: metrics
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: search
+  namespace: shop
+spec:
+  serviceName: search
+  selector:
+    matchLabels:
+      app: search
+  template:
+    metadata:
+      labels:
+        app: search
+    spec:
+      containers:
+        - name: search
+          image: example.com/search:0.9.3
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: metrics
+              containerPort: 9100
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: search
+  namespace: shop
+  labels:
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: search
+  podMetricsEndpoints:
+    - port: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: shop-alerts
+  namespace: shop
+  labels:
+    team: shop
+    release: monitoring
+spec:
+  groups:
+    - name: shop
+      rules:
+        - alert: CheckoutErrors
+          expr: sum(rate(http_requests_total{job="checkout",code=~"5.."}[5m])) > 1
+          for: 10m
+          labels:
+            severity: page
+Error: UPGRADE FAILED: context deadline exceeded

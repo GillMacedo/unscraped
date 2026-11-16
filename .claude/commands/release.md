@@ -1,0 +1,1 @@
+Prepare a release for version $ARGUMENTS: update `version` in `plugin/.claude-plugin/plugin.json` and `version` in `plugin/scripts/unscraped.go`, move the `[Unreleased]` entries in `CHANGELOG.md` under the new version with today's date, update the pinned version in `README.md`, run `make test`, `make test-k8s` and `make lint`, and open a pull request. Don't tag or merge.

@@ -1,0 +1,14 @@
+{
+  "name": "unscraped-marketplace",
+  "description": "Marketplace for unscraped, which finds ServiceMonitors, PodMonitors and PrometheusRules that Prometheus silently ignores.",
+  "owner": {
+    "name": "Giulliano Macedo"
+  },
+  "plugins": [
+    {
+      "name": "unscraped",
+      "source": "./plugin",
+      "description": "Check Prometheus Operator ServiceMonitors, PodMonitors and PrometheusRules in Kubernetes manifests for selectors, namespaces and ports that leave targets unscraped and alerts unloaded."
+    }
+  ]
+}

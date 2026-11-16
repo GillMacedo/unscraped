@@ -1,0 +1,1028 @@
+---
+# Source: flux2/templates/policies.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+  name: allow-egress
+spec:
+  egress:
+  - {}
+  ingress:
+  - from:
+    - podSelector: {}
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+
+---
+# Source: flux2/templates/policies.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+  name: allow-scraping
+spec:
+  ingress:
+  - from:
+    - namespaceSelector: {}
+    ports:
+    - port: 8080
+      protocol: TCP
+  podSelector: {}
+  policyTypes:
+  - Ingress
+
+---
+# Source: flux2/templates/policies.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+  name: allow-webhooks
+spec:
+  ingress:
+  - from:
+    - namespaceSelector: {}
+  podSelector:
+    matchLabels:
+      app: notification-controller
+  policyTypes:
+  - Ingress
+
+---
+# Source: flux2/templates/helm-controller-sa.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: helm-controller
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+  name: helm-controller
+---
+# Source: flux2/templates/image-automation-controller-sa.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: image-automation-controller
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+  name: image-automation-controller
+---
+# Source: flux2/templates/image-reflector-controller-sa.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: image-reflector-controller
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+  name: image-reflector-controller
+---
+# Source: flux2/templates/kustomize-controller-sa.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: kustomize-controller
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+  name: kustomize-controller
+---
+# Source: flux2/templates/notification-controller-sa.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: notification-controller
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+  name: notification-controller
+---
+# Source: flux2/templates/source-controller-serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: source-controller
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+  name: source-controller
+---
+# Source: flux2/templates/aggregate-clusterroles.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: flux-edit
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+rules:
+  - apiGroups:
+      - notification.toolkit.fluxcd.io
+      - source.toolkit.fluxcd.io
+      - source.extensions.fluxcd.io
+      - helm.toolkit.fluxcd.io
+      - image.toolkit.fluxcd.io
+      - kustomize.toolkit.fluxcd.io
+    resources: ["*"]
+    verbs:
+      - create
+      - delete
+      - deletecollection
+      - patch
+      - update
+
+---
+# Source: flux2/templates/aggregate-clusterroles.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: flux-view
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+rules:
+  - apiGroups:
+      - notification.toolkit.fluxcd.io
+      - source.toolkit.fluxcd.io
+      - source.extensions.fluxcd.io
+      - helm.toolkit.fluxcd.io
+      - image.toolkit.fluxcd.io
+      - kustomize.toolkit.fluxcd.io
+    resources: ["*"]
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+# Source: flux2/templates/crd-controller-clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: crd-controller
+  labels:
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+rules:
+- apiGroups: ['source.toolkit.fluxcd.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['source.extensions.fluxcd.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['kustomize.toolkit.fluxcd.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['helm.toolkit.fluxcd.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['notification.toolkit.fluxcd.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups: ['image.toolkit.fluxcd.io']
+  resources: ['*']
+  verbs: ['*']
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  - secrets
+  - configmaps
+  - serviceaccounts
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+# required by leader election
+- apiGroups:
+    - ""
+  resources:
+    - configmaps
+  verbs:
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - patch
+    - delete
+- apiGroups:
+    - ""
+  resources:
+    - configmaps/status
+  verbs:
+    - get
+    - update
+    - patch
+- apiGroups:
+  - "coordination.k8s.io"
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+
+---
+# Source: flux2/templates/cluster-reconciler-clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+  name: cluster-reconciler
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: kustomize-controller
+  namespace: flux-system
+- kind: ServiceAccount
+  name: helm-controller
+  namespace: flux-system
+---
+# Source: flux2/templates/crd-controller-clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: crd-controller
+  labels:
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: crd-controller
+subjects:
+  - kind: ServiceAccount
+    name: kustomize-controller
+    namespace: flux-system
+  - kind: ServiceAccount
+    name: helm-controller
+    namespace: flux-system
+  - kind: ServiceAccount
+    name: source-controller
+    namespace: flux-system
+  - kind: ServiceAccount
+    name: notification-controller
+    namespace: flux-system
+  - kind: ServiceAccount
+    name: image-reflector-controller
+    namespace: flux-system
+  - kind: ServiceAccount
+    name: image-automation-controller
+    namespace: flux-system
+  - kind: ServiceAccount
+    name: source-watcher-controller
+    namespace: flux-system
+
+---
+# Source: flux2/templates/notification-controller-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+    control-plane: controller
+  name: notification-controller
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: http
+  selector:
+    app: notification-controller
+  type: ClusterIP
+
+---
+# Source: flux2/templates/notification-controller-webhook-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+    control-plane: controller
+  name: webhook-receiver
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 9292
+  selector:
+    app: notification-controller
+  type: ClusterIP
+
+---
+# Source: flux2/templates/source-controller-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+    control-plane: controller
+  name: source-controller
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: http
+  selector:
+    app: source-controller
+  type: ClusterIP
+
+---
+# Source: flux2/templates/helm-controller.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: helm-controller
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+    control-plane: controller
+  name: helm-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helm-controller
+  template:
+    metadata:
+      annotations: 
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+      labels:
+        app: helm-controller
+
+    spec:
+      automountServiceAccountToken: true
+      containers:
+      - args:
+        - --events-addr=http://notification-controller.$(RUNTIME_NAMESPACE).svc.cluster.local.
+        - --watch-all-namespaces=true
+        - --log-level=info
+        - --log-encoding=json
+        - --enable-leader-election
+        env:
+        - name: RUNTIME_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: ghcr.io/fluxcd/helm-controller:v1.7.1
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: healthz
+        name: manager
+        ports:
+        - containerPort: 8080
+          name: http-prom
+        - containerPort: 9440
+          name: healthz
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: healthz
+        resources: 
+          limits: {}
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsUser: 65534
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+        - mountPath: /tmp
+          name: temp
+      serviceAccountName: helm-controller
+      terminationGracePeriodSeconds: 600
+      volumes:
+      - emptyDir: {}
+        name: temp
+
+---
+# Source: flux2/templates/image-automation-controller.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: image-automation-controller
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+    control-plane: controller
+  name: image-automation-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-automation-controller
+  template:
+    metadata:
+      annotations: 
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+      labels:
+        app: image-automation-controller
+
+    spec:
+      automountServiceAccountToken: true
+      containers:
+      - args:
+        - --events-addr=http://notification-controller.$(RUNTIME_NAMESPACE).svc.cluster.local.
+        - --watch-all-namespaces=true
+        - --log-level=info
+        - --log-encoding=json
+        - --enable-leader-election
+        env:
+        - name: RUNTIME_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: ghcr.io/fluxcd/image-automation-controller:v1.3.0
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: healthz
+        name: manager
+        ports:
+        - containerPort: 8080
+          name: http-prom
+        - containerPort: 9440
+          name: healthz
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: healthz
+        resources: 
+          limits: {}
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsUser: 65534
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+        - mountPath: /tmp
+          name: temp
+      securityContext:
+        fsGroup: 1337
+      serviceAccountName: image-automation-controller
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - emptyDir: {}
+        name: temp
+
+---
+# Source: flux2/templates/image-reflector-controller.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: image-reflector-controller
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+    control-plane: controller
+  name: image-reflector-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-reflector-controller
+  template:
+    metadata:
+      annotations: 
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+      labels:
+        app: image-reflector-controller
+
+    spec:
+      automountServiceAccountToken: true
+      containers:
+      - args:
+        - --events-addr=http://notification-controller.$(RUNTIME_NAMESPACE).svc.cluster.local.
+        - --watch-all-namespaces=true
+        - --log-level=info
+        - --log-encoding=json
+        - --enable-leader-election
+        env:
+        - name: RUNTIME_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: ghcr.io/fluxcd/image-reflector-controller:v1.3.0
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: healthz
+        name: manager
+        ports:
+        - containerPort: 8080
+          name: http-prom
+        - containerPort: 9440
+          name: healthz
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: healthz
+        resources: 
+          limits: {}
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsUser: 65534
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+        - mountPath: /tmp
+          name: temp
+        - mountPath: /data
+          name: data
+      securityContext:
+        fsGroup: 1337
+      serviceAccountName: image-reflector-controller
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - emptyDir: {}
+        name: temp
+      - emptyDir: {}
+        name: data
+
+---
+# Source: flux2/templates/kustomize-controller.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: kustomize-controller
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+    control-plane: controller
+  name: kustomize-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kustomize-controller
+  template:
+    metadata:
+      annotations: 
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+      labels:
+        app: kustomize-controller
+
+    spec:
+      automountServiceAccountToken: true
+      containers:
+      - args:
+        - --events-addr=http://notification-controller.$(RUNTIME_NAMESPACE).svc.cluster.local.
+        - --watch-all-namespaces=true
+        - --log-level=info
+        - --log-encoding=json
+        - --enable-leader-election
+        env:
+        - name: RUNTIME_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: ghcr.io/fluxcd/kustomize-controller:v1.10.1
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: healthz
+        name: manager
+        ports:
+        - containerPort: 8080
+          name: http-prom
+        - containerPort: 9440
+          name: healthz
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: healthz
+        resources: 
+          limits: {}
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsUser: 65534
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+        - mountPath: /tmp
+          name: temp
+      securityContext:
+        fsGroup: 1337
+      serviceAccountName: kustomize-controller
+      terminationGracePeriodSeconds: 60
+      volumes:
+      - emptyDir: {}
+        name: temp
+
+---
+# Source: flux2/templates/notification-controller.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: notification-controller
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+    control-plane: controller
+  name: notification-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-controller
+  template:
+    metadata:
+      annotations: 
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+      labels:
+        app: notification-controller
+
+    spec:
+      automountServiceAccountToken: true
+      containers:
+      - args:
+        - --watch-all-namespaces=true
+        - --log-level=info
+        - --log-encoding=json
+        - --enable-leader-election
+        env:
+        - name: RUNTIME_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: ghcr.io/fluxcd/notification-controller:v1.10.0
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: healthz
+        name: manager
+        ports:
+        - containerPort: 9090
+          name: http
+          protocol: TCP
+        - containerPort: 9292
+          name: http-webhook
+          protocol: TCP
+        - containerPort: 8080
+          name: http-prom
+          protocol: TCP
+        - containerPort: 9440
+          name: healthz
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: healthz
+        resources: 
+          limits: {}
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsUser: 65534
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+        - mountPath: /tmp
+          name: temp
+      serviceAccountName: notification-controller
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - emptyDir: {}
+        name: temp
+
+---
+# Source: flux2/templates/source-controller.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: source-controller
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+    control-plane: controller
+  name: source-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: source-controller
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations: 
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+      labels:
+        app: source-controller
+
+    spec:
+      automountServiceAccountToken: true
+      containers:
+      - args:
+        - --events-addr=http://notification-controller.$(RUNTIME_NAMESPACE).svc.cluster.local.
+        - --watch-all-namespaces=true
+        - --log-level=info
+        - --log-encoding=json
+        - --enable-leader-election
+        - --storage-path=/data
+        - --storage-adv-addr=source-controller.$(RUNTIME_NAMESPACE).svc.cluster.local.
+        env:
+        - name: RUNTIME_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: ghcr.io/fluxcd/source-controller:v1.10.1
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: healthz
+        name: manager
+        ports:
+        - containerPort: 9090
+          name: http
+          protocol: TCP
+        - containerPort: 8080
+          name: http-prom
+          protocol: TCP
+        - containerPort: 9440
+          name: healthz
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+        resources: 
+          limits: {}
+          requests:
+            cpu: 100m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsUser: 65534
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+        - mountPath: /data
+          name: data
+        - mountPath: /tmp
+          name: tmp
+      securityContext:
+        fsGroup: 1337
+      serviceAccountName: source-controller
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - emptyDir: {}
+        name: data
+      - emptyDir: {}
+        name: tmp
+
+---
+# Source: flux2/templates/podmonitor.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: flux
+  labels:
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+spec:
+  namespaceSelector:
+    matchNames:
+      - flux-system
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - helm-controller
+          - source-controller
+          - kustomize-controller
+          - notification-controller
+          - image-automation-controller
+          - image-reflector-controller
+  podMetricsEndpoints:
+    - port: http-prom
+      relabelings:
+      - action: keep
+        regex: Running
+        sourceLabels:
+        - __meta_kubernetes_pod_phase
+---
+# Source: flux2/templates/pre-install-job-serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+  name: "flux-flux-check"
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+
+---
+# Source: flux2/templates/pre-install-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "flux-flux-check"
+  labels:
+    app.kubernetes.io/instance: "flux-system"
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/version: "2.10.0"
+    app.kubernetes.io/part-of: flux
+    helm.sh/chart: flux2-2.20.0
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      name: "flux"
+      labels:
+        app.kubernetes.io/instance: "flux-system"
+        app.kubernetes.io/managed-by: "Helm"
+        app.kubernetes.io/version: "2.10.0"
+        app.kubernetes.io/part-of: flux
+        helm.sh/chart: "flux2-2.20.0"
+    spec:
+      restartPolicy: Never
+      serviceAccountName: "flux-flux-check"
+      automountServiceAccountToken: true
+      containers:
+      - name: flux-cli
+        image: ghcr.io/fluxcd/flux-cli:v2.10.0
+        command: ["/usr/local/bin/flux", "check",  "--pre", "--namespace", flux-system]
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsUser: 65534
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+

@@ -1,0 +1,4 @@
+Error: values don't meet the specifications of the schema(s) in the following chart(s):
+cert-manager:
+- at '/replicaCount': got string, want number
+

@@ -1,0 +1,13 @@
+{
+  "name": "unscraped",
+  "version": "0.1.0",
+  "description": "Find Prometheus Operator ServiceMonitors, PodMonitors and PrometheusRules that Prometheus silently ignores or that find no target: a missing release label, a namespace Prometheus doesn't watch, a port name that isn't on the Service or pod, a selector that matches pod labels instead of Service labels, and timeouts the operator rejects. Reads manifests and helm template output, never a cluster.",
+  "author": {
+    "name": "Giulliano Macedo",
+    "url": "https://github.com/GillMacedo"
+  },
+  "homepage": "https://github.com/GillMacedo/unscraped",
+  "repository": "https://github.com/GillMacedo/unscraped",
+  "license": "MIT",
+  "keywords": ["prometheus", "prometheus-operator", "servicemonitor", "podmonitor", "prometheusrule", "kube-prometheus-stack", "kubernetes", "helm", "observability", "monitoring", "ci"]
+}

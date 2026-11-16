@@ -1,0 +1,12 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: shop
+  namespace: shop
+  labels:
+    release: kps
+spec:
+  groups:
+    - name: shop
+      rules:
+        - alert: ShopDown

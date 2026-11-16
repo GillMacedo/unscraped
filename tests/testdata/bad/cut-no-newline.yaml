@@ -1,0 +1,78 @@
+# A made-up shop: one Prometheus and four services. Each monitor below has a
+# mistake people really make. examples/fixed/shop.yaml is the same file fixed.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shop
+  labels:
+    monitoring: enabled
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: payments
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: main
+  namespace: monitoring
+spec:
+  serviceMonitorSelector:
+    matchLabels:
+      release: monitoring
+  serviceMonitorNamespaceSelector:
+    matchLabels:
+      monitoring: enabled
+  podMonitorSelector:
+    matchLabels:
+      release: monitoring
+  podMonitorNamespaceSelector:
+    matchLabels:
+      monitoring: enabled
+  ruleSelector:
+    matchLabels:
+      release: monitoring
+  ruleNamespaceSelector:
+    matchLabels:
+      monitoring: enabled
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout
+  namespace: shop
+spec:
+  selector:
+    matchLabels:
+      app: checkout
+  template:
+    metadata:
+      labels:
+        app: checkout
+    spec:
+      containers:
+        - name: checkout
+          image: example.com/checkout:1.4.0
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: metrics
+              containerPort: 9090
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: checkout
+  namespace: shop
+  labels:
+    app.kubernetes.io/name: checkout
+spec:
+  selector:
+    app: checkout
+  ports

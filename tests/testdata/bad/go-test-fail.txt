@@ -1,0 +1,5 @@
+--- FAIL: TestX (0.00s)
+    main_test.go:5: boom
+FAIL
+FAIL	broken	0.002s
+FAIL

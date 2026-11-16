@@ -1,0 +1,9 @@
+{
+  "kind": "Status",
+  "apiVersion": "v1",
+  "metadata": {},
+  "status": "Failure",
+  "message": "servicemonitors.monitoring.coreos.com is forbidden: User \"ci\" cannot list resource \"servicemonitors\" in API group \"monitoring.coreos.com\" at the cluster scope",
+  "reason": "Forbidden",
+  "code": 403
+}
